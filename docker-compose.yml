@@ -1,0 +1,22 @@
+services:
+  db:
+    container_name: stockify-postgres
+    image: postgres
+    environment:
+      POSTGRES_DB: stockify_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      PGUSER: user
+    networks:
+      - db 
+    volumes:
+      - db:/data/postgres
+    ports:
+      - "5434:5432"
+    restart: always
+volumes:
+  db:
+
+networks:
+  db:
+    driver: bridge
