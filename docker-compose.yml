@@ -1,22 +1,35 @@
 services:
+  web:
+    build: .
+    container_name: stockify-django
+    command: sh -c "python /app/manage.py migrate && python /app/manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - PYTHONUNBUFFERED=1
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+
   db:
     container_name: stockify-postgres
-    image: postgres
+    image: postgres:13
     environment:
       POSTGRES_DB: stockify_db
       POSTGRES_USER: user
       POSTGRES_PASSWORD: pass
-      PGUSER: user
-    networks:
-      - db 
     volumes:
-      - db:/data/postgres
+      - db_data:/var/lib/postgresql/data
     ports:
-      - "5434:5432"
+      - "5432:5432"  
     restart: always
-volumes:
-  db:
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
 
-networks:
-  db:
-    driver: bridge
+volumes:
+  db_data:
