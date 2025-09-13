@@ -10,4 +10,3 @@ class Product(models.Model):
     created_at = models.DateField()
 
 
-
