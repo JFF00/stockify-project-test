@@ -13,6 +13,7 @@ class Category(models.Model):
 
 class Product(models.Model):
     id_product = models.AutoField(primary_key=True)
+    id_category = models.ForeignKey(Category, on_delete=models.CASCADE)
     name = models.TextField(max_length=100)
     description = models.TextField(max_length=256)
     stock = models.IntegerField(default=0)
