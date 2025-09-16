@@ -1,18 +1,9 @@
-from django.shortcuts import render
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from .serializers import UserSerializer
+from rest_framework import viewsets 
 from .models import User
-from rest_framework import status
-from django.http import Http404
+from .serializers import UserSerializer
 # Create your views here.
 
 
-class User_APIView(APIView):
-
-    def get(self, request, format=None, *args, **kargs):
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
-
-        return Response(serializer.data)
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
