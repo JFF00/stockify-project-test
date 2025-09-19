@@ -13,12 +13,15 @@ class Category(models.Model):
 
 class Product(models.Model):
     id_product = models.AutoField(primary_key=True)
-    id_category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    name = models.TextField(max_length=100)
-    description = models.TextField(max_length=256)
-    stock = models.IntegerField(default=0)
-    unit_price = models.FloatField(default=0.0)
-    created_at = models.DateField()
+    name = models.TextField()
+    description = models.TextField()
+    stock = models.IntegerField()
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at = models.DateField(auto_now_add=True)  # ✅ fecha automática
+    # Opción A: permitir nulo (no obligamos a elegir)
+    id_category = models.ForeignKey(
+        Category, on_delete=models.SET_NULL, null=True, blank=True
+    )
 
 
 class Movement(models.Model):
