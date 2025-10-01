@@ -5,7 +5,7 @@ class Category(models.Model):
     id_category = models.AutoField(primary_key=True)
     name = models.TextField()
     description = models.TextField()
-    created_at = models.DateField()
+    created_at = models.DateField(auto_now_add=True)
 
     class Meta:
         db_table = 'categorys'
