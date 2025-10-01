@@ -1,8 +1,6 @@
 from rest_framework import serializers
 from .models import Category, Product, Movement, Record
 
-
-
 class CategorySerializer(serializers.ModelSerializer):
     id_category = serializers.IntegerField(read_only=True)
     created_at = serializers.DateField(read_only=True)
@@ -27,7 +25,7 @@ class RecordSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Record
-        fields = ['id_movement', 'id_product', 'amount']
+        fields = ['id_movement', 'id_product','unit_price' , 'amount']
 
 class MovementSerializer(serializers.ModelSerializer):
     id_movement = RecordSerializer(source= 'ecord_set', many=True, read_only=True)
