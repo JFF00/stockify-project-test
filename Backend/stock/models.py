@@ -5,7 +5,7 @@ class Category(models.Model):
     id_category = models.AutoField(primary_key=True)
     name = models.TextField()
     description = models.TextField()
-    created_at = models.DateField()
+    created_at = models.DateField(auto_now_add=True)
 
     class Meta:
         db_table = 'categorys'
@@ -35,4 +35,5 @@ class Movement(models.Model):
 class Record(models.Model):
     id_movement = models.ForeignKey(Movement, on_delete=models.CASCADE)
     id_product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     amount = models.FloatField()
