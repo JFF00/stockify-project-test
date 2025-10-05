@@ -2,6 +2,8 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
+from datetime import datetime
+from django.db.models import Sum
 from django.utils import timezone
 from .models import Category, Product, Movement, Record
 from .serializers import CategorySerializer, ProductSerializer, MovementSerializer, RecordSerializer
@@ -15,6 +17,34 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+
+    # 1️⃣ Productos sin stock
+    @action(detail=False, methods=['get'])
+    def low_stock(self, request):
+        # Muestra solo los productos con stock = 0
+        products = Product.objects.filter(stock__lte=0)
+        serializer = self.get_serializer(products, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    # 2️⃣ Productos más vendidos
+    @action(detail=False, methods=['get'])
+    def top_sold(self, request):
+        period = request.query_params.get('period', 'todo')  # mes | año | todo
+        now = timezone.now()
+        records = Record.objects.select_related('id_product', 'id_movement')
+
+        if period == 'mes':
+            records = records.filter(id_movement__date__year=now.year, id_movement__date__month=now.month)
+        elif period == 'año':
+            records = records.filter(id_movement__date__year=now.year)
+        # 'todo' => sin filtro de fecha
+
+        top = (
+            records.values('id_product__name')
+            .annotate(total_sold=Sum('amount'))
+            .order_by('-total_sold')[:10]  # El top 10 de los productos mas vendidos
+        )
+        return Response(top, status=status.HTTP_200_OK)
 
 class MovementViewSet(viewsets.ModelViewSet):
     queryset = Movement.objects.all()
