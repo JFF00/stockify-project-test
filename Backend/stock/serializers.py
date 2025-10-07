@@ -25,7 +25,7 @@ class RecordSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Record
-        fields = ['id_movement', 'id_product','unit_price' , 'amount']
+        fields = ['id','id_movement', 'id_product','unit_price' , 'amount']
 
 class MovementSerializer(serializers.ModelSerializer):
     id_movement = RecordSerializer(source= 'record_set', many=True, read_only=True)
