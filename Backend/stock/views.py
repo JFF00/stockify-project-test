@@ -3,7 +3,10 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 from datetime import datetime
+
 from django.db.models import Sum, F, FloatField
+
+
 from django.utils import timezone
 from .models import Category, Product, Movement, Record
 from .serializers import CategorySerializer, ProductSerializer, MovementSerializer, RecordSerializer
@@ -84,7 +87,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         records = Record.objects.filter(id_movement__type='venta')
         ganancias = (
             records.values('id_movement__date')
-            .annotate(ganancia=Sum(models.F('unit_price') * models.F('amount')))
+            .annotate(ganancia=Sum(F('unit_price') * F('amount'), output_field=FloatField()))
             .order_by('id_movement__date')
         )
         resultado = [
@@ -100,7 +103,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def total_entries(self, request):
         total = Record.objects.filter(id_movement__type='compra').aggregate(
-            total_entries=Sum(models.F('unit_price') * models.F('amount'))
+            total_entries=Sum(F('unit_price') * F('amount'), output_field=FloatField())
         )['total_entries'] or 0.0
         return Response({'total_entries': float(total)}, status=status.HTTP_200_OK)
 
@@ -108,7 +111,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def total_exits(self, request):
         total = Record.objects.filter(id_movement__type='venta').aggregate(
-            total_exits=Sum(models.F('unit_price') * models.F('amount'))
+            total_exits=Sum(F('unit_price') * F('amount'), output_field=FloatField())
         )['total_exits'] or 0.0
         return Response({'total_exits': float(total)}, status=status.HTTP_200_OK)
 
@@ -116,10 +119,10 @@ class ProductViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def profit(self, request):
         total_sales = Record.objects.filter(id_movement__type='venta').aggregate(
-            total=Sum(models.F('unit_price') * models.F('amount'))
+            total=Sum(F('unit_price') * F('amount'), output_field=FloatField())
         )['total'] or 0.0
         total_purchases = Record.objects.filter(id_movement__type='compra').aggregate(
-            total=Sum(models.F('unit_price') * models.F('amount'))
+            total=Sum(F('unit_price') *F('amount'), output_field=FloatField())
         )['total'] or 0.0
         profit = total_sales - total_purchases
         return Response({'profit': float(profit)}, status=status.HTTP_200_OK)
@@ -128,10 +131,10 @@ class ProductViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def profit_percentage(self, request):
         total_sales = Record.objects.filter(id_movement__type='venta').aggregate(
-            total=Sum(models.F('unit_price') * models.F('amount'))
+            total=Sum(F('unit_price') * F('amount'), output_field=FloatField())
         )['total'] or 0.0
         total_purchases = Record.objects.filter(id_movement__type='compra').aggregate(
-            total=Sum(models.F('unit_price') * models.F('amount'))
+            total=Sum(F('unit_price') *F('amount'), output_field=FloatField())
         )['total'] or 0.0
         profit = total_sales - total_purchases
         percentage = (profit / total_sales * 100) if total_sales > 0 else 0.0
