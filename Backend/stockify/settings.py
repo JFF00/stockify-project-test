@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     'stock.apps.StockConfig',
     'rest_framework',
 ]
+AUTH_USER_MODEL = 'users.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -67,6 +68,9 @@ DATABASES = {
         'HOST': os.environ.get('DB_HOST', 'db'),  # Usar 'db' para Docker
         'PORT': os.environ.get('DB_PORT', '5432'),
     }
+}
+DATABASES['default']['TEST'] = {
+    'NAME': 'test_stockify_db',  # se creará y eliminará automáticamente
 }
 
 AUTH_PASSWORD_VALIDATORS = [
