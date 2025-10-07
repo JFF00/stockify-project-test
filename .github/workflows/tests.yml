@@ -51,7 +51,9 @@ jobs:
 
         run: |
           rm -rf users/migrations/0*.py
+          rm -rf stock/migrations/0*.py
           python manage.py makemigrations users
+          python manage.py makemigrations stock
           python manage.py migrate --run-syncdb
 
       - name: Run Tests
