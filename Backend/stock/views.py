@@ -18,7 +18,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
-    # 1️⃣ Productos sin stock
+    # Productos sin stock
     @action(detail=False, methods=['get'])
     def low_stock(self, request):
         # Muestra solo los productos con stock = 0
@@ -26,7 +26,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(products, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    # 2️⃣ Productos más vendidos
+    # Productos más vendidos
     @action(detail=False, methods=['get'])
     def top_sold(self, request):
         period = request.query_params.get('period', 'todo')  # mes | año | todo
@@ -45,6 +45,24 @@ class ProductViewSet(viewsets.ModelViewSet):
             .order_by('-total_sold')[:10]  # El top 10 de los productos mas vendidos
         )
         return Response(top, status=status.HTTP_200_OK)
+
+    # Ganancias por día
+    @action(detail=False, methods=['get'])
+    def earnings_by_day(self, request):
+        records = Record.objects.filter(id_movement__type='venta')
+        ganancias = (
+            records.values('id_movement__date')
+            .annotate(ganancia=Sum(models.F('unit_price') * models.F('amount')))
+            .order_by('id_movement__date')
+        )
+        resultado = [
+            {
+                'fecha': g['id_movement__date'],
+                'ganancia': float(g['ganancia']) if g['ganancia'] is not None else 0.0
+            }
+            for g in ganancias
+        ]
+        return Response(resultado, status=status.HTTP_200_OK)'
 
 class MovementViewSet(viewsets.ModelViewSet):
     queryset = Movement.objects.all()

@@ -17,3 +17,8 @@ export const getLowStockProducts = (threshold: number = 5) =>
 // Productos más vendidos
 export const getTopSoldProducts = (period: 'mes' | 'año' | 'todo' = 'todo') =>
   api.get(`/products/top_sold/?period=${period}`);
+
+// Ganancias por día
+export const getEarningsByDay = () => api.get('/products/earnings_by_day/');
+
+export default api;
