@@ -3,7 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 from datetime import datetime
-from django.db.models import Sum
+from django.db.models import Sum, F, FloatField
 from django.utils import timezone
 from .models import Category, Product, Movement, Record
 from .serializers import CategorySerializer, ProductSerializer, MovementSerializer, RecordSerializer
@@ -13,6 +13,16 @@ from .serializers import CategorySerializer, ProductSerializer, MovementSerializ
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+
+    # 🔹 Total de categorías y listado de nombres
+    @action(detail=False, methods=['get'])
+    def summary(self, request):
+        categories = Category.objects.all().values('id_category', 'name')
+        total = categories.count()
+        return Response({
+            'total_categories': total,
+            'categories': list(categories)
+        }, status=status.HTTP_200_OK)
     
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
@@ -25,6 +35,28 @@ class ProductViewSet(viewsets.ModelViewSet):
         products = Product.objects.filter(stock__lte=0)
         serializer = self.get_serializer(products, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    # 🔹 Lista de productos con su cantidad en stock
+    @action(detail=False, methods=['get'])
+    def stock(self, request):
+        products = Product.objects.all().values('id_product', 'name', 'stock')
+        return Response(list(products), status=status.HTTP_200_OK)
+
+    # 🔹 Valor total del stock
+    @action(detail=False, methods=['get'])
+    def stock_value(self, request):
+        total_value = Product.objects.aggregate(
+            total_value=Sum(F('stock') * F('unit_price'), output_field=FloatField())
+        )['total_value'] or 0.0
+        return Response({'total_value': round(total_value, 2)}, status=status.HTTP_200_OK)
+
+    # Productos sin movimiento (nunca registraron Record)
+    @action(detail=False, methods=['get'])
+    def no_movement(self, request):
+        qs = (Product.objects
+            .filter(record__isnull=True)          
+            .values('id_product', 'name', 'stock'))
+        return Response(list(qs), status=status.HTTP_200_OK)
 
     # Productos más vendidos
     @action(detail=False, methods=['get'])
@@ -62,7 +94,7 @@ class ProductViewSet(viewsets.ModelViewSet):
             }
             for g in ganancias
         ]
-        return Response(resultado, status=status.HTTP_200_OK)'
+        return Response(resultado, status=status.HTTP_200_OK)
 
     # Total entradas (Purchases)
     @action(detail=False, methods=['get'])
