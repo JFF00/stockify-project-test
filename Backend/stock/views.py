@@ -64,6 +64,47 @@ class ProductViewSet(viewsets.ModelViewSet):
         ]
         return Response(resultado, status=status.HTTP_200_OK)'
 
+    # Total entradas (Purchases)
+    @action(detail=False, methods=['get'])
+    def total_entries(self, request):
+        total = Record.objects.filter(id_movement__type='compra').aggregate(
+            total_entries=Sum(models.F('unit_price') * models.F('amount'))
+        )['total_entries'] or 0.0
+        return Response({'total_entries': float(total)}, status=status.HTTP_200_OK)
+
+    # Total Exits (Sales)
+    @action(detail=False, methods=['get'])
+    def total_exits(self, request):
+        total = Record.objects.filter(id_movement__type='venta').aggregate(
+            total_exits=Sum(models.F('unit_price') * models.F('amount'))
+        )['total_exits'] or 0.0
+        return Response({'total_exits': float(total)}, status=status.HTTP_200_OK)
+
+    # Profit (Sales - Purchases)
+    @action(detail=False, methods=['get'])
+    def profit(self, request):
+        total_sales = Record.objects.filter(id_movement__type='venta').aggregate(
+            total=Sum(models.F('unit_price') * models.F('amount'))
+        )['total'] or 0.0
+        total_purchases = Record.objects.filter(id_movement__type='compra').aggregate(
+            total=Sum(models.F('unit_price') * models.F('amount'))
+        )['total'] or 0.0
+        profit = total_sales - total_purchases
+        return Response({'profit': float(profit)}, status=status.HTTP_200_OK)
+
+    # Profit Percentage
+    @action(detail=False, methods=['get'])
+    def profit_percentage(self, request):
+        total_sales = Record.objects.filter(id_movement__type='venta').aggregate(
+            total=Sum(models.F('unit_price') * models.F('amount'))
+        )['total'] or 0.0
+        total_purchases = Record.objects.filter(id_movement__type='compra').aggregate(
+            total=Sum(models.F('unit_price') * models.F('amount'))
+        )['total'] or 0.0
+        profit = total_sales - total_purchases
+        percentage = (profit / total_sales * 100) if total_sales > 0 else 0.0
+        return Response({'profit_percentage': round(percentage, 2)}, status=status.HTTP_200_OK)
+
 class MovementViewSet(viewsets.ModelViewSet):
     queryset = Movement.objects.all()
     serializer_class = MovementSerializer

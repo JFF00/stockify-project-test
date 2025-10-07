@@ -21,4 +21,16 @@ export const getTopSoldProducts = (period: 'mes' | 'año' | 'todo' = 'todo') =>
 // Ganancias por día
 export const getEarningsByDay = () => api.get('/products/earnings_by_day/');
 
+// Total Entries (Purchases)
+export const getTotalEntries = () => api.get('/products/total_entries/');
+
+// Total Exits (Sales)
+export const getTotalExits = () => api.get('/products/total_exits/');
+
+// Profit (Sales - Purchases)
+export const getProfit = () => api.get('/products/profit/');
+
+// Profit Percentage
+export const getProfitPercentage = () => api.get('/products/profit_percentage/');
+
 export default api;
