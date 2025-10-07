@@ -18,6 +18,18 @@ export const getLowStockProducts = (threshold: number = 5) =>
 export const getTopSoldProducts = (period: 'mes' | 'año' | 'todo' = 'todo') =>
   api.get(`/products/top_sold/?period=${period}`);
 
+// Stock de los productos
+export const getProductStocks = () => api.get('/products/stock/');
+
+// Productos sin movimiento
+export const getProductsWithoutMovement = () => api.get('/products/no_movement/');
+
+// Total Categorias
+export const getCategorySummary = () => api.get('/category/summary/');
+
+//Valor total del stock
+export const getStockValue = () => api.get('/products/stock_value/');
+
 // Ganancias por día
 export const getEarningsByDay = () => api.get('/products/earnings_by_day/');
 
