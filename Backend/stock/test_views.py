@@ -141,11 +141,16 @@ class ProductViewSetTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_create_product(self):
-        data = {"name": "Nuevo Producto", "id_category": self.category.id_category, "stock": 5, "unit_price": 50}
-        response = self.client.post(self.list_url, data)
+        data = {
+            "name": "Nuevo Producto",
+            "description": "Descripción del producto",
+            "id_category": self.category.id_category,
+            "stock": 5,
+            "unit_price": 50
+        }
+        response = self.client.post(self.list_url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Product.objects.count(), 3)
-
     def test_low_stock(self):
         response = self.client.get(self.low_stock_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
