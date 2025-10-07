@@ -39,7 +39,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          
+      - name: Reset database
+        run: |
+          psql -h postgres -U user -d stockify_db -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+        env:
+          PGPASSWORD: pass
+
       - name: Run migrations 
         working-directory: Backend
         env: 
